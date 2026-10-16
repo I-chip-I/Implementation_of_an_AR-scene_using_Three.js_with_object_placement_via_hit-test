@@ -29,6 +29,9 @@
 
 			let hitTestSource = null;
 			let hitTestSourceRequested = false;
+			let last_reticle_position = new THREE.Vector3();
+			let last_reticle_quarternion = new THREE.Quaternion();
+			let first_hit = true;
 
 			init();
 
@@ -147,12 +150,39 @@
 
 							const hit = hitTestResults[ 0 ];
 
-							reticle.visible = true;
-							reticle.matrix.fromArray( hit.getPose( referenceSpace ).transform.matrix );
+							const new_matrix = new THREE.Matrix4().fromArray( hit.getPose( referenceSpace ).transform.matrix );
+							const new_position = new THREE.Vector3();
+							const new_quarternion = new THREE.Quaternion();
+							new_matrix.decompose( new_position, new_quarternion, new THREE.Vector3() );
+
+							const surface_normal = new THREE.Vector3( 0, 1, 0 ).applyQuaternion( new_quarternion );
+
+							if ( Math.abs( surface_normal.y ) > 0.7) {
+								
+								if ( first_hit == true ) {
+									last_reticle_position.copy( new_position );
+									last_reticle_quarternion.copy( new_quarternion );
+									first_hit = false;
+								}
+								else
+								{
+									last_reticle_position.lerp( new_position, 0.15 );
+									last_reticle_quarternion.slerp( new_quarternion, 0.15 );
+								}
+
+								reticle.matrix.compose( last_reticle_position, last_reticle_quarternion, new THREE.Vector3( 1, 1, 1 ) );
+								reticle.visible = true;
+
+							}
+							else
+							{
+								reticle.visible = false;
+							}
 
 						} else {
 
 							reticle.visible = false;
+							first_hit = true;
 
 						}
 
