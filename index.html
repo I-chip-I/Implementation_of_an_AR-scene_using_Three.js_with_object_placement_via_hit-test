@@ -67,17 +67,13 @@
 					if ( reticle.visible && decoration_model != null ) {
 
 						const decoration_object = decoration_model.clone();
+						
+						reticle.matrix.decompose( decoration_object.position, decoration_object.quaternion, decoration_object.scale );
 
-        				const position = new THREE.Vector3();
-        				reticle.matrix.decompose( position, new THREE.Quaternion(), new THREE.Vector3() );
+						decoration_object.position.y = 2;
+						decoration_object.scale.set( 0.5, 0.5, 0.5 );
 
-        				decoration_object.position.set (
-            				position.x,
-            				2,
-            				position.z );
-        				decoration_object.quaternion.set( 0, 0, 0, 1 );
-
-        				scene.add( decoration_object );
+						scene.add( decoration_object );
 
 					}
 
