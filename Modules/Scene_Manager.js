@@ -14,7 +14,7 @@ export class Scene_Manager
         this.scene.add( light );
         
         const loader = new RGBELoader();
-        loader.load( '../Models_and_tools/ferndale_studio_01_1k.hdr', (texture) =>
+        loader.load( './Models_and_tools/ferndale_studio_01_1k.hdr', (texture) =>
         {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             this.scene.environment = texture;

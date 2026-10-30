@@ -1,0 +1,135 @@
+/* Reset existent styles */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Background */
+body 
+{
+    background-color: #5e2b97;
+    color: #1a1a1a;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Main page */
+.main-page {
+    background-color: #ffffff;
+    width: 90%;
+    max-width: 450px;
+    padding: 40px;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Headers */
+h1 { font-size: 24px; font-weight: 600; letter-spacing: 0.5px; }
+h2 { font-size: 16px; font-weight: 500; color: #555; text-align: left; margin-bottom: -10px; }
+
+/* Dropdown list design */
+select {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    outline: none;
+    background-color: #f9f9f9;
+    cursor: pointer;
+}
+
+/* Model demo window design */
+.model-demo-window {
+    background-color: #2a2a2a;
+    width: 100%;
+    height: 200px;
+    border-radius: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #888;
+    font-size: 14px;
+}
+
+/* Model-viewer settings for model demo window */
+.model-demo-window model-viewer {
+    --poster-color: transparent;
+    --progress-bar-color: transparent;
+    width: 100%;
+    height: 100%;
+}
+
+/* "Use AR" button: active state */
+.use-button {
+    background-color: #56278c;
+    color: #ffffff;
+    border: none;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+/* "Use AR" button: inactive state */
+.use-button:disabled {
+    background-color: #d1c4e9;
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+/* AR page design, AR UI: inactive state */
+.ar-page-ui {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* AR UI: active state */
+.ar-page-ui.active {
+    display: flex;
+}
+
+/* prompt design */
+.prompt-banner {
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    text-align: center;
+    backdrop-filter: blur(5px);
+}
+
+/* "Exit AR" button */
+.exit-button {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    pointer-events: auto;
+    backdrop-filter: blur(5px);
+}

@@ -1,12 +1,15 @@
 import { Scene_Manager } from './Scene_Manager.js';
 import { Model_Manager } from './Model_Manager.js';
 import { AR_Manager } from './AR_Manager.js';
+import { UI_Manager } from './UI_Manager.js';
 
 const scene_manager = new Scene_Manager();
-const model_manager = new Model_Manager( '../Models_and_tools/origami_paper_crane_on_string.glb' );
+const model_manager = new Model_Manager( './Models_and_tools/origami_paper_crane_on_string.glb' );
 const ar_manager = new AR_Manager( scene_manager, model_manager );
+const ui_manager = new UI_Manager( scene_manager, model_manager, ar_manager );
 
 ar_manager.init();
+ui_manager.init();
 
 function onWindowResize() 
 {
