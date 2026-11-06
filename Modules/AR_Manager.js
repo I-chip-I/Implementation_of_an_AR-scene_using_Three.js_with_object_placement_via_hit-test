@@ -5,19 +5,24 @@ export class AR_Manager
 {
     scene_manager = null;
     model_manager = null;
-    mark = null;
+    mark = new THREE.Mesh(
+        new THREE.RingGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),
+        new THREE.MeshBasicMaterial()
+    );
     controller1 = null;
     controller2 = null;
     hitTestSource = null;
     hitTestSourceRequested = false;
     last_mark_position = new THREE.Vector3();
-    last_mark_quarternion = new THREE.Quaternion();
+    last_mark_quaternion = new THREE.Quaternion();
     first_hit = true;
 
     constructor( scene_manager, model_manager )
     {
         this.scene_manager = scene_manager;
         this.model_manager = model_manager;
+        this.controller1 = this.scene_manager.renderer.xr.getController( 0 );
+        this.controller2 = this.scene_manager.renderer.xr.getController( 1 );
     }
 
     add_new_object()
@@ -41,21 +46,59 @@ export class AR_Manager
     
         this.scene_manager.renderer.setAnimationLoop( this.animate.bind( this ) );
 
-        this.controller1 = this.scene_manager.renderer.xr.getController( 0 );
         this.controller1.addEventListener( 'select', this.add_new_object.bind( this ) );
         this.scene_manager.scene.add( this.controller1 );
     
-        this.controller2 = this.scene_manager.renderer.xr.getController( 1 );
         this.controller2.addEventListener( 'select', this.add_new_object.bind( this ) );
         this.scene_manager.scene.add( this.controller2 );
     
-        this.mark = new THREE.Mesh(
-            new THREE.RingGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),
-            new THREE.MeshBasicMaterial()
-        );
         this.mark.matrixAutoUpdate = false;
         this.mark.visible = false;
         this.scene_manager.scene.add( this.mark );
+    }
+
+    process_hit_test_result( frame, referenceSpace )
+    {
+        const hitTestResults = frame.getHitTestResults( this.hitTestSource );
+
+		if ( hitTestResults.length ) 
+        {
+			const hit = hitTestResults[ 0 ];
+
+			const new_matrix = new THREE.Matrix4().fromArray( hit.getPose( referenceSpace ).transform.matrix );
+			const new_position = new THREE.Vector3();
+			const new_quaternion = new THREE.Quaternion();
+			new_matrix.decompose( new_position, new_quaternion, new THREE.Vector3() );
+
+			const surface_normal = new THREE.Vector3( 0, 1, 0 ).applyQuaternion( new_quaternion );
+
+			if ( Math.abs( surface_normal.y ) > 0.7)
+            {
+				if ( this.first_hit == true )
+                {
+					this.last_mark_position.copy( new_position );
+					this.last_mark_quaternion.copy( new_quaternion );
+					this.first_hit = false;
+				}
+				else
+				{
+					this.last_mark_position.lerp( new_position, 0.15 );
+					this.last_mark_quaternion.slerp( new_quaternion, 0.15 );
+				}
+
+				this.mark.matrix.compose( this.last_mark_position, this.last_mark_quaternion, new THREE.Vector3( 1, 1, 1 ) );
+				this.mark.visible = true;
+			}
+			else
+			{
+				this.mark.visible = false;
+			}
+        }
+        else
+        {
+			this.mark.visible = false;
+			this.first_hit = true;
+		}
     }
 
     animate( timestamp, frame ) 
@@ -88,46 +131,7 @@ export class AR_Manager
 
 		    if ( this.hitTestSource ) 
             {
-		        const hitTestResults = frame.getHitTestResults( this.hitTestSource );
-
-			    if ( hitTestResults.length ) 
-                {
-				    const hit = hitTestResults[ 0 ];
-
-				    const new_matrix = new THREE.Matrix4().fromArray( hit.getPose( referenceSpace ).transform.matrix );
-				    const new_position = new THREE.Vector3();
-				    const new_quarternion = new THREE.Quaternion();
-				    new_matrix.decompose( new_position, new_quarternion, new THREE.Vector3() );
-
-				    const surface_normal = new THREE.Vector3( 0, 1, 0 ).applyQuaternion( new_quarternion );
-
-				    if ( Math.abs( surface_normal.y ) > 0.7)
-                    {
-					    if ( this.first_hit == true )
-                        {
-						    this.last_mark_position.copy( new_position );
-						    this.last_mark_quarternion.copy( new_quarternion );
-						    this.first_hit = false;
-					    }
-					    else
-					    {
-						    this.last_mark_position.lerp( new_position, 0.15 );
-						    this.last_mark_quarternion.slerp( new_quarternion, 0.15 );
-					    }
-
-				        this.mark.matrix.compose( this.last_mark_position, this.last_mark_quarternion, new THREE.Vector3( 1, 1, 1 ) );
-					    this.mark.visible = true;
-				    }
-				    else
-				    {
-					    this.mark.visible = false;
-				    }
-			    } 
-                else
-                {
-				    this.mark.visible = false;
-				    this.first_hit = true;
-			    }
+		        this.process_hit_test_result( frame, referenceSpace );
 		    }
 
 	    }
