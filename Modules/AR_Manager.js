@@ -40,9 +40,40 @@ export class AR_Manager
         }
     }
 
+    change_AR_button_design( AR_button )
+    {
+        AR_button.style.backgroundColor = '#56278c';
+        AR_button.style.color = 'white';
+        AR_button.style.border = 'none';
+        AR_button.style.borderRadius = '12px';
+        AR_button.style.fontWeight = '600';
+        AR_button.style.whiteSpace = 'nowrap';
+        AR_button.style.display = 'block';
+        AR_button.style.width = '90%';
+        AR_button.style.padding = '16px';
+        AR_button.style.boxSizing = 'border-box';
+        AR_button.style.position = 'static';
+        AR_button.style.margin = '10px auto 0 auto';
+        AR_button.style.left = 'auto';
+        AR_button.style.right = 'auto';
+        AR_button.style.top = 'auto';
+        AR_button.style.bottom = 'auto';
+        AR_button.style.transform = 'none'; 
+    }
+
     init() 
     {
-        document.body.appendChild( ARButton.createButton( this.scene_manager.renderer, { requiredFeatures: [ 'hit-test' ] } ) );
+        const AR_button = ARButton.createButton( this.scene_manager.renderer, { requiredFeatures: [ 'hit-test' ] } );
+        const container = document.getElementById( 'ar-button-container' );
+        if ( container )
+        {
+            container.appendChild( AR_button );
+        } 
+        else 
+        {
+            document.body.appendChild( AR_button );
+        }
+        this.change_AR_button_design( AR_button );
     
         this.scene_manager.renderer.setAnimationLoop( this.animate.bind( this ) );
 

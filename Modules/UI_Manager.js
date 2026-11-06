@@ -7,7 +7,7 @@ export class UI_Manager
     type_selector = document.getElementById('type-selector');
     model_selector = document.getElementById('model-selector');
     model_demo = document.getElementById('model-demo');
-    use_button = document.getElementById('use-button');
+    //use_button = document.getElementById('use-button');
     ar_page_ui = document.getElementById('ar-page-ui');
     prompt_banner = document.getElementById('prompt-banner');
     exit_button = document.getElementById('exit-button');
@@ -40,18 +40,15 @@ export class UI_Manager
             this.update_UI();
         });
 
-        this.use_button.addEventListener( 'click', () =>
-        {
-            document.body.style.backgroundColor = 'transparent';
-            this.main_page.style.display = 'none';
-            this.ar_page_ui.classList.add( 'active' );
-
-            const ar_use_button = document.querySelector( '.ar-button' );
-            if ( ar_use_button ) 
-            {
-                ar_use_button.click();
-            }
-        });
+        const arButton = document.querySelector('.ar-button');
+        if (arButton) {
+            arButton.addEventListener('click', () => {
+                document.body.style.backgroundColor = 'transparent';
+                this.main_page.style.display = 'none';
+                this.ar_page_ui.classList.add('active');
+                this.update_prompt('Point at the horizontal surface');
+            });
+        }
 
         this.exit_button.addEventListener( 'click', () =>
         {
@@ -72,10 +69,10 @@ export class UI_Manager
         const selected_model = this.model_selector.value;
         
         if ( selected_model === 'crane' ) {
-            this.use_button.disabled = false;
             this.model_demo.src = './Models_and_tools/origami_paper_crane_on_string.glb';
-        } else {
-            this.use_button.disabled = true;
+        } 
+        else
+        {
             this.model_demo.src = '';
         }
     }
