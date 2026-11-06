@@ -7,7 +7,6 @@ export class UI_Manager
     type_selector = document.getElementById('type-selector');
     model_selector = document.getElementById('model-selector');
     model_demo = document.getElementById('model-demo');
-    //use_button = document.getElementById('use-button');
     ar_page_ui = document.getElementById('ar-page-ui');
     prompt_banner = document.getElementById('prompt-banner');
     exit_button = document.getElementById('exit-button');
@@ -23,10 +22,22 @@ export class UI_Manager
     {
         this.type_selector.addEventListener( 'change', (event) =>
         {
-            if (event.target.value === 'ceiling') {
+            if ( event.target.value === 'ceiling' )
+            {
                 this.model_selector.disabled = false;
                 this.model_selector.innerHTML = '<option value="crane">Origami Crane</option>';
-            } else {
+                this.model_manager.displacement = 2;
+                this.model_manager.scale = 0.5;
+            }
+            else if ( event.target.value === 'floor' )
+            {
+                this.model_selector.disabled = false;
+                this.model_selector.innerHTML = '<option value="lamp">Kerosene Lamp</option>';
+                this.model_manager.displacement = null;
+                this.model_manager.scale = null;
+            }
+            else
+            {
                 this.model_selector.disabled = true;
                 this.model_selector.innerHTML = '<option value="">-- Choose model --</option>';
                 this.model_selector.value = "";
@@ -50,31 +61,51 @@ export class UI_Manager
             });
         }
 
-        this.exit_button.addEventListener( 'click', () =>
+        setInterval(() => 
         {
-            document.body.style.backgroundColor = '#5e2b97';
-             this.main_page.style.display = 'flex';
-            this.ar_page_ui.classList.remove( 'active' );
-            
-            const session = this.scene_manager.renderer.xr.getSession();
-            if ( session )
+            if ( this.ar_manager.session_end == true ) 
             {
-                session.end();
+                this.ar_manager.session_end = false;
+                this.main_page.style.display = 'flex';
+                this.ar_page_ui.classList.remove('active');
+                document.body.style.backgroundColor = '#5e2b97';
+                this.scene_manager.reset_module();
+                this.ar_manager.reset_module();
+
+                const arButton = document.querySelector('.ar-button');
+                if (arButton) 
+                {
+                    arButton.addEventListener('click', () => 
+                    {
+                        document.body.style.backgroundColor = 'transparent';
+                        this.main_page.style.display = 'none';
+                        this.ar_page_ui.classList.add('active');
+                        this.update_prompt('Point at the horizontal surface');
+                    });
+                }
             }
-        });
+        }, 500);
     }
 
     update_UI()
     {
         const selected_model = this.model_selector.value;
         
-        if ( selected_model === 'crane' ) {
+        if ( selected_model === 'crane' )
+        {
             this.model_demo.src = './Models_and_tools/origami_paper_crane_on_string.glb';
+            this.model_manager.load_new_model( './Models_and_tools/origami_paper_crane_on_string.glb' );
+        }
+        else if ( selected_model === 'lamp' )
+        {
+            this.model_demo.src = './Models_and_tools/rusty_kerosene_lamp.glb';
+            this.model_manager.load_new_model( './Models_and_tools/rusty_kerosene_lamp.glb' );
         } 
         else
         {
             this.model_demo.src = '';
         }
+
     }
 
     update_prompt( new_prompt ) {

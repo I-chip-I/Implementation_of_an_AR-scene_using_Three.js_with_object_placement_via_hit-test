@@ -31,4 +31,33 @@ export class Scene_Manager
     {
         this.renderer.render( this.scene, this.camera );
     }
+
+    reset_module()
+    {
+        if ( this.renderer && this.renderer.domElement ) {
+            this.renderer.domElement.remove();
+            this.renderer.dispose(); 
+        }
+
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera( 55, window.innerWidth / window.innerHeight, 0.01, 20 );
+        this.renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+
+        this.renderer.setPixelRatio( window.devicePixelRatio );
+        this.renderer.setSize( window.innerWidth, window.innerHeight );
+        this.renderer.xr.enabled = true;
+        this.renderer.xr.setReferenceSpaceType( 'local-floor' );
+        document.body.appendChild( this.renderer.domElement );
+
+        const light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 3 );
+        light.position.set( 0.5, 1, 0.25 );
+        this.scene.add( light );
+
+        const loader = new RGBELoader();
+        loader.load( './Models_and_tools/ferndale_studio_01_1k.hdr', (texture) =>
+        {
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+            this.scene.environment = texture;
+        } );
+    }
 }

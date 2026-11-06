@@ -3,12 +3,9 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 export class Model_Manager
 {
     decoration_model = null;
+    displacement = null;
+    scale = null;
     loader = new GLTFLoader();
-
-    constructor( file_path )
-    {
-        this.load_new_model( file_path );
-    }
 
     load_new_model( file_path )
     {
