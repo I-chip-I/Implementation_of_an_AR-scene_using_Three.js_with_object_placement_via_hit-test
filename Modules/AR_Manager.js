@@ -9,6 +9,10 @@ export class AR_Manager
         new THREE.RingGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ),
         new THREE.MeshBasicMaterial()
     );
+    prompt_banner = document.createElement('canvas');
+    prompt_banner_context = null;
+    prompt_banner_texture = null;
+    prompt_plane = null;
     controller1 = null;
     controller2 = null;
     hitTestSource = null;
@@ -24,6 +28,49 @@ export class AR_Manager
         this.model_manager = model_manager;
         this.controller1 = this.scene_manager.renderer.xr.getController( 0 );
         this.controller2 = this.scene_manager.renderer.xr.getController( 1 );
+    }
+
+    init_prompt_banner()
+    {
+        this.prompt_banner = document.createElement('canvas');
+        this.prompt_banner.width = 512; 
+        this.prompt_banner.height = 128;
+        this.prompt_banner_context = this.prompt_banner.getContext( '2d' );
+        this.prompt_banner_texture = new THREE.CanvasTexture( this.prompt_banner );
+
+        const plane_geometry = new THREE.PlaneGeometry( 1.0, 0.25 ); 
+        const plane_material = new THREE.MeshBasicMaterial({ map: this.prompt_banner_texture, transparent: true, depthTest: false });
+        
+        this.prompt_plane = new THREE.Mesh( plane_geometry, plane_material );
+        this.prompt_plane.visible = false;
+        
+        this.scene_manager.scene.add( this.prompt_plane ); 
+        
+        this.update_prompt_banner( 'Move around your phone slowly before the surface' );
+    }
+
+    update_prompt_banner( new_prompt ) 
+    {
+        if ( this.prompt_banner_context == null ) 
+        {
+            return;
+        }
+        
+        this.prompt_banner_context.clearRect( 0, 0, 512, 128 );
+        
+        this.prompt_banner_context.fillStyle = 'rgba(130, 98, 168, 0.85)';
+        this.prompt_banner_context.beginPath();
+        
+        this.prompt_banner_context.roundRect( 0, 0, 512, 128, 30 );
+        this.prompt_banner_context.fill();
+        
+        this.prompt_banner_context.fillStyle = 'white';
+        this.prompt_banner_context.font = 'bold 28px sans-serif'; 
+        this.prompt_banner_context.textAlign = 'center';
+        this.prompt_banner_context.textBaseline = 'middle';
+        this.prompt_banner_context.fillText( new_prompt, 256, 64, 480 );
+
+        this.prompt_banner_texture.needsUpdate = true; 
     }
 
     add_new_object()
@@ -96,6 +143,8 @@ export class AR_Manager
         this.mark.matrixAutoUpdate = false;
         this.mark.visible = false;
         this.scene_manager.scene.add( this.mark );
+
+        this.init_prompt_banner();
     }
 
     process_hit_test_result( frame, referenceSpace )
@@ -112,6 +161,7 @@ export class AR_Manager
 			new_matrix.decompose( new_position, new_quaternion, new THREE.Vector3() );
 
 			const surface_normal = new THREE.Vector3( 0, 1, 0 ).applyQuaternion( new_quaternion );
+            this.prompt_plane.visible = true;
 
 			if ( Math.abs( surface_normal.y ) > 0.7)
             {
@@ -129,15 +179,79 @@ export class AR_Manager
 
 				this.mark.matrix.compose( this.last_mark_position, this.last_mark_quaternion, new THREE.Vector3( 1, 1, 1 ) );
 				this.mark.visible = true;
+
+                if ( this.prompt_plane != null ) 
+                {
+                    const target_position = this.last_mark_position.clone();
+                    target_position.y = target_position.y + 0.15;
+
+                    const dir = target_position.clone().sub( this.scene_manager.camera.position );
+                    const distance = dir.length();
+
+                    if ( distance > 4 ) 
+                    {
+                        dir.normalize().multiplyScalar( 4 );
+                        this.prompt_plane.position.copy( this.scene_manager.camera.position ).add( dir );
+                    } 
+                    else 
+                    {
+                        this.prompt_plane.position.copy( target_position );
+                    }
+
+                    this.prompt_plane.lookAt( this.scene_manager.camera.position );
+                    this.update_prompt_banner( 'Tap to place the chosen model' );
+                }
 			}
 			else
 			{
 				this.mark.visible = false;
+                if ( this.prompt_plane != null ) 
+                {
+                    const target_position = this.last_mark_position.clone();
+                    target_position.y = target_position.y + 0.15;
+
+                    const dir = target_position.clone().sub( this.scene_manager.camera.position );
+                    const distance = dir.length();
+
+                    if ( distance > 4 ) 
+                    {
+                        dir.normalize().multiplyScalar( 4 );
+                        this.prompt_plane.position.copy( this.scene_manager.camera.position ).add( dir );
+                    } 
+                    else 
+                    {
+                        this.prompt_plane.position.copy( target_position );
+                    }
+
+                    this.prompt_plane.lookAt( this.scene_manager.camera.position );
+                    this.update_prompt_banner( 'Move around your phone slowly before the surface' );
+                }
 			}
         }
         else
         {
 			this.mark.visible = false;
+            if ( this.prompt_plane != null ) 
+            {
+                const target_position = this.last_mark_position.clone();
+                target_position.y = target_position.y + 0.15;
+
+                const dir = target_position.clone().sub( this.scene_manager.camera.position );
+                const distance = dir.length();
+
+                if ( distance > 4 ) 
+                {
+                    dir.normalize().multiplyScalar( 4 );
+                    this.prompt_plane.position.copy( this.scene_manager.camera.position ).add( dir );
+                } 
+                else 
+                {
+                    this.prompt_plane.position.copy( target_position );
+                }
+
+                this.prompt_plane.lookAt( this.scene_manager.camera.position );
+                this.update_prompt_banner( 'Move around your phone slowly before the surface' );
+            }
 			this.first_hit = true;
 		}
     }

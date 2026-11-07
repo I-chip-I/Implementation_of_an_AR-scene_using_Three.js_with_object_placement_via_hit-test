@@ -7,9 +7,6 @@ export class UI_Manager
     type_selector = document.getElementById('type-selector');
     model_selector = document.getElementById('model-selector');
     model_demo = document.getElementById('model-demo');
-    ar_page_ui = document.getElementById('ar-page-ui');
-    prompt_banner = document.getElementById('prompt-banner');
-    exit_button = document.getElementById('exit-button');
 
     constructor( scene_manager, model_manager, ar_manager )
     {
@@ -56,8 +53,6 @@ export class UI_Manager
             arButton.addEventListener('click', () => {
                 document.body.style.backgroundColor = 'transparent';
                 this.main_page.style.display = 'none';
-                this.ar_page_ui.classList.add('active');
-                this.update_prompt('Point at the horizontal surface');
             });
         }
 
@@ -67,7 +62,6 @@ export class UI_Manager
             {
                 this.ar_manager.session_end = false;
                 this.main_page.style.display = 'flex';
-                this.ar_page_ui.classList.remove('active');
                 document.body.style.backgroundColor = '#5e2b97';
                 this.scene_manager.reset_module();
                 this.ar_manager.reset_module();
@@ -79,8 +73,6 @@ export class UI_Manager
                     {
                         document.body.style.backgroundColor = 'transparent';
                         this.main_page.style.display = 'none';
-                        this.ar_page_ui.classList.add('active');
-                        this.update_prompt('Point at the horizontal surface');
                     });
                 }
             }
@@ -106,9 +98,5 @@ export class UI_Manager
             this.model_demo.src = '';
         }
 
-    }
-
-    update_prompt( new_prompt ) {
-        this.prompt_banner.innerText = new_prompt;
     }
 }
