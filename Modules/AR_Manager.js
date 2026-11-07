@@ -307,6 +307,7 @@ export class AR_Manager
         this.mark.matrixAutoUpdate = false;
         this.mark.visible = false;
         this.scene_manager.scene.add( this.mark );
+        this.prompt_banner = document.createElement('canvas');
         
         this.controller1.addEventListener( 'select', this.add_new_object.bind( this ) );
         this.controller2.addEventListener( 'select', this.add_new_object.bind( this ) );
